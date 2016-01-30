@@ -166,13 +166,15 @@ On invoking these methods, some objects are auto passed as parameters, but in th
 So in summary, once you have setup your options file and your converters away you go. Unfortunately as we have no UI, this has to be achived by placing options.json files in the guid folders and simply calling a few Urls
 in sequence. This will obviously be automated with a UI.
 
-###£ Process 1: Listing page, get is child pages (option.json id: 0e1bc703-cf5d-47a9-b82d-1afeb78ba97b)
+#### Process 1: Listing page, get is child pages 
+(option.json id: 0e1bc703-cf5d-47a9-b82d-1afeb78ba97b)
 
 1. Hit the url to process the listing page: /umbraco/backoffice/api/migration/GetListings?key=0e1bc703-cf5d-47a9-b82d-1afeb78ba97b&url=http://www.rockspringpim.com/news-and-research/press-releases/2016.aspx
 2. Hit the url to grab found pages details: /umbraco/backoffice/api/migration/GetListingsComplete?key=0e1bc703-cf5d-47a9-b82d-1afeb78ba97b
 3: Hit url to import: /umbraco/backoffice/api/migration/GetImport?key=0e1bc703-cf5d-47a9-b82d-1afeb78ba97b
 
-###£ Process 1: Listing page, get is child pages (option.json id: 345435435-c345d-445c-34cd-cvrv545ba97b)
+#### Process 1: Listing page, get is child pages 
+(option.json id: 345435435-c345d-445c-34cd-cvrv545ba97b)
 
 1. Post to url with an array of url {[url1,url2,url3]}: /umbraco/backoffice/api/migration/GetDetails?key=345435435-c345d-445c-34cd-cvrv545ba97b
 3: Hit url to import: /umbraco/backoffice/api/migration/GetImport?key=345435435-c345d-445c-34cd-cvrv545ba97b
