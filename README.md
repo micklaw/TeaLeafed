@@ -177,7 +177,7 @@ in sequence. This will obviously be automated with a UI.
 (option.json id: 345435435-c345d-445c-34cd-cvrv545ba97b)
 
 1. Post to url with an array of url {[url1,url2,url3]}: /umbraco/backoffice/api/migration/GetDetails?key=345435435-c345d-445c-34cd-cvrv545ba97b
-3: Hit url to import: /umbraco/backoffice/api/migration/GetImport?key=345435435-c345d-445c-34cd-cvrv545ba97b
+2: Hit url to import: /umbraco/backoffice/api/migration/GetImport?key=345435435-c345d-445c-34cd-cvrv545ba97b
 
 ## Step by Step
 
