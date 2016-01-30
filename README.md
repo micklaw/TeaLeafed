@@ -5,28 +5,59 @@
 I used this code for a project I worked on recently, I was going to package it up, but alas, paid work, kids, illness... life, got in way! So best share it with someone who it may be of use too.
 
 The idea behind the original concept of the code was too provide a way to **migrate** a listing of posts or blogs from one site to another, on a first pass scan a listing page to find all the child pages contained with in it. 
-On this page we can pull information of each child page like its link, title, image, summary text etc. We can the do a second pass on the pulled information to pull associated information from their actual pages, like
+On this page we can pull information of each child page like its link, title, image, summary text etc. We can then do a second pass on the pulled information to pull associated information from their individual page details, like
 hero images, quotes, authors, author images, comments etc.
 
-The code also provides a means to just do the second pass above on a collection of urls, so no need for the listing pass if we already have the collection of details urls we need.
+The code also provides a means to just do the second pass above on a collection of urls, so no need for the listing pass if we already have the collection of urls we need.
 
 Finally, we then **import** this information to umbraco. This is also achieved in this code.
 
 ## Configuration
 
-The process makes use of a main options.json file. This file defines things like, the document type to save the content as, properties to map to (more info to follow), should we make a url rewrite file?, 
-the repeating item xpath for child pages, the parent node Id to save files against etc.
+The process makes use of an options.json file per teplate to import. This file defines things like, the document type to save the content as, properties to map to via XPath (more info to follow), should we make a url 
+rewrite file?, the repeating container item xpath for child pages in the listing, the parent node Id to save found pages against etc.
 
-The file is saved in a config defined folder which is given a guid as its name. I have no UI for this, but i envisaged it would be created in the UI and then serialized to disk, giving a quick view in the UI
-to any previously ran setups?
+The file is saved in a config defined folder '/app_data/[folder-name]/[setup-guid]' where the guid is unique per setup. I have no UI for this, but i envisaged the options.json file would be created in the UI and then 
+serialized to disk, giving a quick CRUD of the file in the UI on any previously ran setups?
 
-Now, the confusing bit. This process makes use of XPath to map the content to pull for your results. XPaths not confusing I hear you cry, and your right, but different folks like different strokes. So in this instance the
-code has a concept of migrator converters and importer converters. Migrator converters are ways to register methods which will parse the DOM for specific values, so anyone can easily write your own, and register them
-to grab things from the DOM in any way they like. For example, I have inner HTML, inner Text, attribute value, meta tag migrator converters etc. These are registered on startup to its related container and then defined
+### Property configuration
+
+Now, the confusing bit. This process makes use of XPath to map the content to pull for your results. XPaths not confusing I hear you cry, and your right, but what to do with the Xpath value can be. So in this instance the
+code has a concept of **migrator converters** and **importer converters**. Migrator converters are ways to register methods which will parse the DOM for specific values, so anyone can easily write your own, and register them
+to grab things from the DOM in any way they like. For example, I have inner HTML converter, inner Text converter, attribute value converter, meta tag converters etc. These are registered on startup to its related container and then defined
 against a property in the options.json file so so this method is then invoked to parse the DOM.
 
-Importing has the exact same concept so you can roll your own media importer, archetype importer etc. If no importer is defined on a property, we just attempt to set the value of the umbraco property using its deserialized
-type.
+Importing has the exact same concept so you can roll your own media importer, archetype importer etc when importing the found property values. If no importer is defined on a property, we just attempt to set the value of 
+the umbraco property using its deserialized type.
+
+#### Sample migrator converter
+
+```csharp
+public static Func<MigrationOptions, HtmlDocument, HtmlNode, bool, string, string> InnerText = (options, document, node, useRelative, xPath) =>
+{
+    var root = ValidateDefaults(document, node, useRelative);
+
+    var element = root.SelectSingleNode(xPath);
+
+    if (element != null)
+    {
+        var value = element.InnerText;
+
+        return (value ?? string.Empty).Trim('\r', '\n', ' ');
+    }
+
+    return null;
+};
+```
+
+In the sample project attached I register these in my container, but it could easily be done in the global.asax or IApplicationStarting events.
+
+```csharp
+ConverterResolver.Init();
+ConverterResolver.Register("html", MigrationConverters.InnerHtml);
+ConverterResolver.Register("text", MigrationConverters.InnerText);
+ConverterResolver.Register("attribute", MigrationConverters.AttributeValue);
+```
 
 On invoking these methods, some objects are auto passed as parameters, but in the options.json properties there are converter args arrays, you can pass values expected on your converters e.g parnt node ids, booleans etc.
 
@@ -128,7 +159,7 @@ On invoking these methods, some objects are auto passed as parameters, but in th
    ],
    "ParentNodeId":1075,
    "DocumentTypeAlias":"BlogPost"
-'''
+```
 
 ## Running it...
 
